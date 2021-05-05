@@ -1,0 +1,37 @@
+version: '3.4'
+
+services:
+  postgres-product:
+    container_name: postgres-product
+    image: postgres:latest
+    environment:
+      - POSTGRESQL_USERNAME=postgres
+      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_DB=productdb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - epo
+
+  product-backend:
+    container_name: product-backend
+    image: hieung/product:1.0
+    depends_on:
+      - postgres-product
+    ports:
+      - 8081:8081
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-product:5432/productdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=mysecretpassword
+    networks:
+      - epo
+
+volumes:
+  pgdata:
+
+networks:
+  epo:
+    driver: bridge
